@@ -13,6 +13,7 @@ class SignupPresenterTests: XCTestCase {
     var mockSignupModelValidiator: MockSignupModelValidator!
     var sut: SignupPresenter!
     var mockSignupWebService: MockSignupWebService!
+    var mockSignupViewDelegate: MockSignupViewDelegate!
 
     override func setUpWithError() throws {
         signupFormModel = SignupFormModel(firstName: "Sergey",
@@ -22,7 +23,8 @@ class SignupPresenterTests: XCTestCase {
                                               repeatPassword:"12345678")
         mockSignupModelValidiator = MockSignupModelValidator()
         mockSignupWebService = MockSignupWebService()
-        sut = SignupPresenter(formModelValidator: mockSignupModelValidiator, signupWebService: mockSignupWebService)
+        mockSignupViewDelegate = MockSignupViewDelegate()
+        sut = SignupPresenter(formModelValidator: mockSignupModelValidiator, signupWebService: mockSignupWebService, delegate: mockSignupViewDelegate)
     }
 
     override func tearDownWithError() throws {
@@ -30,6 +32,7 @@ class SignupPresenterTests: XCTestCase {
         mockSignupModelValidiator = nil
         sut = nil
         mockSignupWebService = nil
+        mockSignupViewDelegate = nil
     }
 
     func testSignupPresenter_WhenInformationProvided_WillValidateEachProperty() {
@@ -63,12 +66,29 @@ class SignupPresenterTests: XCTestCase {
     func testSignupPresenter_WhenSignupOperationSuccessful_CallsSuccessOnViewDelegate() {
         // Arrange
         let myExpectation = expectation(description: "Expected the successfulSignup() method to be called.")
-        let mockSignupViewDelegate = MockSignupViewDelegate()
         mockSignupViewDelegate.expectation = myExpectation
         
         // Act
+        sut.processUserSignup(formModel: signupFormModel)
         self.wait(for: [myExpectation], timeout: 5.0)
         
         // Assert
+        XCTAssertEqual(mockSignupViewDelegate.successfulSignupCounter, 1, "successfulSignup() was called more than once.")
+    }
+    
+    func testSignupPresenter_WhenSignupOperationSuccessful_ShouldCallErrorOnViewDelegate() {
+        // Arrange
+        let myExpectation = expectation(description: "Expected the errorHandler() method to be called.")
+        mockSignupViewDelegate.expectation = myExpectation
+        
+        // Act
+        mockSignupWebService.shouldShowError = true
+        sut.processUserSignup(formModel: signupFormModel)
+        self.wait(for: [myExpectation], timeout: 5.0)
+        
+        // Assert
+        XCTAssertEqual(mockSignupViewDelegate.successfulSignupCounter, 0)
+        XCTAssertEqual(mockSignupViewDelegate.errorHandlerCounter, 1)
+        XCTAssertNotNil(mockSignupViewDelegate.signUpError)
     }
 }
