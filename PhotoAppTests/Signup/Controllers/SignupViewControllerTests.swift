@@ -37,8 +37,14 @@ class SignupViewControllerTests: XCTestCase {
     }
     
     func testSignupViewController_WhenCreated_HasSignupButtonAndAction() throws {
+        // Arrange
         let signupButton = try XCTUnwrap(sut.signupButton, "Signup button does not have a referencing outlet.")
-        let signupButtonActions = signupButton.actions(forTarget: sut, forControlEvent: .touchUpInside)
-        XCTAssertEqual(signupButtonActions?.count, 1)
+        
+        // Act
+        let signupButtonActions = try XCTUnwrap(signupButton.actions(forTarget: sut, forControlEvent: .touchUpInside), "Signup button does not have actions assigned to it.")
+        
+        // Assert
+        XCTAssertEqual(signupButtonActions.count, 1)
+        XCTAssertEqual(signupButtonActions.first, "signupPressed:", "There is not action with name signupPressed assigned to signup button.")
     }
 }
