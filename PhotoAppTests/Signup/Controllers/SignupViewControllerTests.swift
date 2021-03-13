@@ -62,4 +62,19 @@ class SignupViewControllerTests: XCTestCase {
         // Assert
         XCTAssertTrue(mockSignupPresenter.processUserSignupCalled, "processUserSignupCalled was not called on a presenter object when signup button was pressed in SignupViewController.")
     }
+    
+    func testSignupController_WhenCreated_HasEmailAddressContentTypeSet() throws {
+        let emailTextField = try XCTUnwrap(sut.emailTextField, "Email address UITextField is not connected.")
+        XCTAssertEqual(emailTextField.textContentType, UITextContentType.emailAddress, "Email address UITextField does not have an email address content type set.")
+    }
+    
+    func testSignupController_WhenCreated_HasEmailAddressKeyboardTypeSet() throws {
+        let emailTextField = try XCTUnwrap(sut.emailTextField, "Email address UITextField is not connected.")
+        XCTAssertEqual(emailTextField.keyboardType, UIKeyboardType.emailAddress, "Email address UITextField does not have an email address keyboard type set.")
+    }
+    
+    func testSignupController_WhenCreated_IsSecuredTextEntryField() throws {
+        let passwordTextField = try XCTUnwrap(sut.passwordTextField, "Password UITextField is not connected.")
+        XCTAssertTrue(passwordTextField.isSecureTextEntry, "Password UITextField is not a Secure text Entry Field.")
+    }
 }
